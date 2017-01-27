@@ -1,0 +1,3833 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 24 24 571 818
+%%Title: Enscript Output
+%%For: Mixukoshi Keita
+%%Creator: GNU Enscript 1.6.6
+%%CreationDate: Tue Dec 20 15:44:11 2016
+%%Orientation: Landscape
+%%Pages: (atend)
+%%DocumentMedia: A4 595 842 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 6
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 6
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 7 7 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [595 842] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-enscript 1.6 6
+%%IncludeResource: font Times-Bold
+%%IncludeResource: font Times-Roman
+
+% Fonts.
+/Times-Bold /HeaderFont-Bold MF
+/HeaderDateF /HeaderFont-Bold findfont 12 scalefont def
+
+/Times-Roman /HeaderFont-Times MF
+/HeaderHDRF /HeaderFont-Times findfont 14 scalefont def
+
+/HeaderPageNumF /Helvetica-Bold findfont 28.8 scalefont def
+
+/do_header {	% print enscript header
+  gsave
+    d_header_x d_header_y translate
+
+    % light bar
+    0 0 d_header_w d_header_h 2 div Box
+    .95 setgray fill
+
+    % dark gray boxes
+    /dbw d_header_h 2 mul def	% dark box width
+    /dbc .7 def			% dark box color
+
+    % left dark box.
+    0 0 dbw d_header_h Box
+    dbc setgray fill
+
+    0 setgray 
+    HeaderDateF setfont
+    moddatestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 2 div 2 add moveto show
+    modtimestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 5 div moveto show
+
+    % right dark box
+    d_header_w dbw sub 0 dbw d_header_h Box
+    dbc setgray fill
+
+    HeaderPageNumF setfont
+    1 setgray
+    pagenumstr dup
+    stringwidth pop dbw exch sub 2 div d_header_w dbw sub add
+    d_header_h .2 mul moveto show
+
+    % filename
+    0 setgray 
+    HeaderHDRF setfont
+    d_header_w fname stringwidth pop sub 2 div d_header_h 8 div moveto
+    fname show
+
+    % user supplied header string.
+    user_header_p {
+      /h d_header_h 8 div 5 mul def
+
+      % Implement strict enscript compatibility.
+      user_header_center_str () eq user_header_right_str () eq and {
+        d_header_w user_header_left_str stringwidth pop sub 2 div 
+        h moveto user_header_left_str show
+      } {
+        dbw 5 add h moveto user_header_left_str show
+
+        d_header_w user_header_center_str stringwidth pop sub 2 div 
+        h moveto user_header_center_str show
+
+	d_header_w dbw sub 5 sub user_header_right_str stringwidth pop
+	sub h moveto user_header_right_str show
+      } ifelse
+    } if
+
+  grestore
+} def
+%%EndResource
+/d_page_w 794 def
+/d_page_h 547 def
+/d_header_x 0 def
+/d_header_y 511 def
+/d_header_w 794 def
+/d_header_h 36 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 794 def
+/d_footer_h 0 def
+/d_output_w 794 def
+/d_output_h 511 def
+/cols 2 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+90 rotate
+24 -571 translate
+/pagenum 1 def
+/fname (PP1DetectorConstruction.cc) def
+/fdir (.) def
+/ftail (PP1DetectorConstruction.cc) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (12/19/16) def
+/modtimestr (16:09:01) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+column_lines
+do_header
+22.8 501 M (1:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+35.4 501 M
+(//) s
+/F-gs-font 7 7 SF
+22.8 493 M (2:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+35.4 493 M
+(//) s
+/F-gs-font 7 7 SF
+22.8 485 M (3:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 485 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 485 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 485 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 485 M
+("G4PhysicalConstants.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+22.8 477 M (4:) s
+35.4 477 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 477 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 477 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 477 M
+("G4SystemOfUnits.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+22.8 469 M (5:) s
+22.8 461 M (6:) s
+35.4 461 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 461 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 461 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 461 M
+("PP1DetectorConstruction.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+22.8 453 M (7:) s
+35.4 453 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 453 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 453 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 453 M
+("PP1DetectorMessenger.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+22.8 445 M (8:) s
+35.4 445 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 445 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 445 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 445 M
+("PP1SensorSD.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+22.8 437 M (9:) s
+18.6 429 M (10:) s
+35.4 429 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 429 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 429 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 429 M
+("G4Material.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 421 M (11:) s
+35.4 421 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 421 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 421 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 421 M
+("G4Box.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 413 M (12:) s
+35.4 413 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 413 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 413 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 413 M
+("G4LogicalVolume.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 405 M (13:) s
+35.4 405 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 405 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 405 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 405 M
+("G4PVPlacement.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 397 M (14:) s
+35.4 397 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 397 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 397 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 397 M
+("G4PVReplica.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 389 M (15:) s
+35.4 389 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 389 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 389 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 389 M
+("G4UniformMagField.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 381 M (16:) s
+35.4 381 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 381 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 381 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 381 M
+("G4SDManager.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 373 M (17:) s
+18.6 365 M (18:) s
+35.4 365 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 365 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 365 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 365 M
+("G4GeometryManager.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 357 M (19:) s
+35.4 357 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 357 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 357 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 357 M
+("G4PhysicalVolumeStore.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 349 M (20:) s
+35.4 349 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 349 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 349 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 349 M
+("G4LogicalVolumeStore.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 341 M (21:) s
+35.4 341 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 341 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 341 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 341 M
+("G4SolidStore.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 333 M (22:) s
+18.6 325 M (23:) s
+35.4 325 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 325 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 325 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 325 M
+("G4VisAttributes.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 317 M (24:) s
+35.4 317 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 317 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 317 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 317 M
+("G4Colour.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 309 M (25:) s
+18.6 301 M (26:) s
+35.4 301 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 301 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 301 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 301 M
+("G4SubtractionSolid.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+18.6 293 M (27:) s
+18.6 285 M (28:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+35.4 285 M
+(////////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+18.6 277 M (29:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+18.6 269 M (30:) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+35.4 269 M
+(PP1DetectorConstruction::PP1DetectorConstruction) s
+/F-gs-font 7 7 SF
+0 setgray
+237 269 M
+(\(\)) s
+18.6 261 M (31:) s
+35.4 261 M
+( :pTargetMaterial\(0\),vTargetThickness\(0.\),vTargetSize\(0.\),) s
+18.6 253 M (32:) s
+35.4 253 M
+(  defaultMaterial\(0\),) s
+18.6 245 M (33:) s
+35.4 245 M
+(  solidWorld\(0\),logicWorld\(0\),physWorld\(0\),) s
+18.6 237 M (34:) s
+35.4 237 M
+(  solidTarget\(0\),logicTarget\(0\),physTarget\(0\),) s
+18.6 229 M (35:) s
+35.4 229 M
+(  solidSensor\(0\),logicSensor\(0\),physSensor\(0\),) s
+18.6 221 M (36:) s
+35.4 221 M
+(   magField\(0\)) s
+18.6 213 M (37:) s
+35.4 213 M
+({) s
+18.6 205 M (38:) s
+35.4 205 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 205 M
+(// World Size) s
+/F-gs-font 7 7 SF
+18.6 197 M (39:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 197 M
+(  WorldSizeYZ =  250.0 *cm;) s
+18.6 189 M (40:) s
+35.4 189 M
+(  WorldSizeX  =  250.0 *cm;) s
+18.6 181 M (41:) s
+18.6 173 M (42:) s
+35.4 173 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 173 M
+(// default parameter values of Target) s
+/F-gs-font 7 7 SF
+18.6 165 M (43:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 165 M
+(  vTargetThickness =  10.*mm;) s
+18.6 157 M (44:) s
+35.4 157 M
+(  vTargetSize      = 100.*mm;) s
+18.6 149 M (45:) s
+35.4 149 M
+(  ) s
+18.6 141 M (46:) s
+35.4 141 M
+(  ) s
+18.6 133 M (47:) s
+35.4 133 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 133 M
+(// materials) s
+/F-gs-font 7 7 SF
+18.6 125 M (48:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 125 M
+(  DefineMaterials\(\);) s
+18.6 117 M (49:) s
+35.4 117 M
+(  SetTargetMaterial\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+119.4 117 M
+("Lead") s
+/F-gs-font 7 7 SF
+0 setgray
+144.6 117 M
+(\);) s
+18.6 109 M (50:) s
+35.4 109 M
+(  ) s
+18.6 101 M (51:) s
+35.4 101 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 101 M
+(// create commands for interactive definition of the calorimeter) s
+/F-gs-font 7 7 SF
+18.6 93 M (52:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 93 M
+(  detectorMessenger = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+127.8 93 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+140.4 93 M
+( PP1DetectorMessenger\() s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+232.8 93 M
+(this) s
+/F-gs-font 7 7 SF
+0 setgray
+249.6 93 M
+(\);) s
+18.6 85 M (53:) s
+35.4 85 M
+(}) s
+18.6 77 M (54:) s
+18.6 69 M (55:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+35.4 69 M
+(/////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+18.6 61 M (56:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+18.6 53 M (57:) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+35.4 53 M
+(PP1DetectorConstruction::~PP1DetectorConstruction) s
+/F-gs-font 7 7 SF
+0 setgray
+241.2 53 M
+(\(\)) s
+18.6 45 M (58:) s
+35.4 45 M
+({ ) s
+18.6 37 M (59:) s
+35.4 37 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+43.8 37 M
+(delete) s
+/F-gs-font 7 7 SF
+0 setgray
+69 37 M
+( detectorMessenger;) s
+18.6 29 M (60:) s
+35.4 29 M
+(}) s
+18.6 21 M (61:) s
+18.6 13 M (62:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+35.4 13 M
+(////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+18.6 5 M (63:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+415.6 501 M (64:) s
+432.4 501 M
+(G4VPhysicalVolume* ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+512.2 501 M
+(PP1DetectorConstruction::Construct) s
+/F-gs-font 7 7 SF
+0 setgray
+655 501 M
+(\(\)) s
+415.6 493 M (65:) s
+432.4 493 M
+({) s
+415.6 485 M (66:) s
+432.4 485 M
+( ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+436.6 485 M
+(// Clean old geometry, if any) s
+/F-gs-font 7 7 SF
+415.6 477 M (67:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 477 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 477 M
+(//) s
+/F-gs-font 7 7 SF
+415.6 469 M (68:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 469 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+440.8 469 M
+(G4GeometryManager) s
+/F-gs-font 7 7 SF
+0 setgray
+512.2 469 M
+(::GetInstance\(\)->OpenGeometry\(\);) s
+415.6 461 M (69:) s
+432.4 461 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+440.8 461 M
+(G4PhysicalVolumeStore) s
+/F-gs-font 7 7 SF
+0 setgray
+529 461 M
+(::GetInstance\(\)->Clean\(\);) s
+415.6 453 M (70:) s
+432.4 453 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+440.8 453 M
+(G4LogicalVolumeStore) s
+/F-gs-font 7 7 SF
+0 setgray
+524.8 453 M
+(::GetInstance\(\)->Clean\(\);) s
+415.6 445 M (71:) s
+432.4 445 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+440.8 445 M
+(G4SolidStore) s
+/F-gs-font 7 7 SF
+0 setgray
+491.2 445 M
+(::GetInstance\(\)->Clean\(\);) s
+415.6 437 M (72:) s
+415.6 429 M (73:) s
+432.4 429 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 429 M
+(//     ) s
+/F-gs-font 7 7 SF
+415.6 421 M (74:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 421 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 421 M
+(// World) s
+/F-gs-font 7 7 SF
+415.6 413 M (75:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 413 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 413 M
+(//) s
+/F-gs-font 7 7 SF
+415.6 405 M (76:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 405 M
+(  solidWorld = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+495.4 405 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+508 405 M
+( G4Box\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+537.4 405 M
+("World") s
+/F-gs-font 7 7 SF
+0 setgray
+566.8 405 M
+(,                               ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+701.2 405 M
+(//its name) s
+/F-gs-font 7 7 SF
+415.6 397 M (77:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 397 M
+(                   WorldSizeX/2,WorldSizeYZ/2,WorldSizeYZ/2\);   ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+701.2 397 M
+(//its size) s
+/F-gs-font 7 7 SF
+415.6 389 M (78:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 389 M
+(                         ) s
+415.6 381 M (79:) s
+432.4 381 M
+(  logicWorld = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+495.4 381 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+508 381 M
+( G4LogicalVolume\(solidWorld,          ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 381 M
+(//its solid) s
+/F-gs-font 7 7 SF
+415.6 373 M (80:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 373 M
+(                                   defaultMaterial,     ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 373 M
+(//its material) s
+/F-gs-font 7 7 SF
+415.6 365 M (81:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 365 M
+(                                   ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+579.4 365 M
+("World") s
+/F-gs-font 7 7 SF
+0 setgray
+608.8 365 M
+(\);            ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 365 M
+(//its name) s
+/F-gs-font 7 7 SF
+415.6 357 M (82:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 357 M
+(                                   ) s
+415.6 349 M (83:) s
+432.4 349 M
+(  physWorld = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+491.2 349 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+503.8 349 M
+( G4PVPlacement\(0,                      ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 349 M
+(//no rotation) s
+/F-gs-font 7 7 SF
+415.6 341 M (84:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 341 M
+(                                 G4ThreeVector\(\),       ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 341 M
+(//at \(0,0,0\)) s
+/F-gs-font 7 7 SF
+415.6 333 M (85:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 333 M
+(                                 logicWorld,            ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 333 M
+(//its logical volume     ) s
+/F-gs-font 7 7 SF
+415.6 325 M (86:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 325 M
+(                                 ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+571 325 M
+("World") s
+/F-gs-font 7 7 SF
+0 setgray
+600.4 325 M
+(,               ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 325 M
+(//its name) s
+/F-gs-font 7 7 SF
+415.6 317 M (87:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 317 M
+(                                 0,                     ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 317 M
+(//its mother  volume) s
+/F-gs-font 7 7 SF
+415.6 309 M (88:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 309 M
+(                                 false,                 ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 309 M
+(//no boolean operation) s
+/F-gs-font 7 7 SF
+415.6 301 M (89:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 301 M
+(                                 0\);                    ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 301 M
+(//copy number) s
+/F-gs-font 7 7 SF
+415.6 293 M (90:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 293 M
+(  ) s
+415.6 285 M (91:) s
+432.4 285 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 285 M
+(//                               ) s
+/F-gs-font 7 7 SF
+415.6 277 M (92:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 277 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 277 M
+(// Traget) s
+/F-gs-font 7 7 SF
+415.6 269 M (93:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 269 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 269 M
+(//  ) s
+/F-gs-font 7 7 SF
+415.6 261 M (94:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 261 M
+(  solidTarget = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+499.6 261 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+512.2 261 M
+( G4Box\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+541.6 261 M
+("Target") s
+/F-gs-font 7 7 SF
+0 setgray
+575.2 261 M
+(,             ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+634 261 M
+(//its name) s
+/F-gs-font 7 7 SF
+415.6 253 M (95:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 253 M
+(                          vTargetThickness/2,vTargetSize/2,vTargetSize/2\);) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+743.2 253 M
+(//size) s
+/F-gs-font 7 7 SF
+415.6 245 M (96:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 245 M
+(  ) s
+415.6 237 M (97:) s
+432.4 237 M
+(   logicTarget = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+503.8 237 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+516.4 237 M
+( G4LogicalVolume\(solidTarget,       ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 237 M
+(//its solid) s
+/F-gs-font 7 7 SF
+415.6 229 M (98:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 229 M
+(                                    pTargetMaterial,    ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 229 M
+(//its material) s
+/F-gs-font 7 7 SF
+415.6 221 M (99:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 221 M
+(                                    ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+583.6 221 M
+("Target") s
+/F-gs-font 7 7 SF
+0 setgray
+617.2 221 M
+(\);          ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 221 M
+(//its name) s
+/F-gs-font 7 7 SF
+411.4 213 M (100:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 213 M
+(                                       ) s
+411.4 205 M (101:) s
+432.4 205 M
+(  physTarget = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+495.4 205 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+508 205 M
+( G4PVPlacement\(0,                     ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 205 M
+(//no rotation) s
+/F-gs-font 7 7 SF
+411.4 197 M (102:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 197 M
+(                                 G4ThreeVector\(\),       ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 197 M
+(//at \(0,0,0\)) s
+/F-gs-font 7 7 SF
+411.4 189 M (103:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 189 M
+(                                 logicTarget,           ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 189 M
+(//its logical volume) s
+/F-gs-font 7 7 SF
+411.4 181 M (104:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 181 M
+(                                 ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+571 181 M
+("Target") s
+/F-gs-font 7 7 SF
+0 setgray
+604.6 181 M
+(,              ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 181 M
+(//its name) s
+/F-gs-font 7 7 SF
+411.4 173 M (105:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 173 M
+(                                 logicWorld,            ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 173 M
+(//its mother  volume) s
+/F-gs-font 7 7 SF
+411.4 165 M (106:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 165 M
+(                                 false,                 ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 165 M
+(//no boolean operation) s
+/F-gs-font 7 7 SF
+411.4 157 M (107:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 157 M
+(                                 0\);                    ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+667.6 157 M
+(//copy number) s
+/F-gs-font 7 7 SF
+411.4 149 M (108:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 149 M
+( ) s
+411.4 141 M (109:) s
+432.4 141 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 141 M
+(//                                 ) s
+/F-gs-font 7 7 SF
+411.4 133 M (110:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 133 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 133 M
+(// Sensor) s
+/F-gs-font 7 7 SF
+411.4 125 M (111:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 125 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 125 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 117 M (112:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 117 M
+(  G4double   vSensorThickness = 1.0 *cm;) s
+411.4 109 M (113:) s
+411.4 101 M (114:) s
+432.4 101 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 101 M
+(//  solidSensor = new G4Box\("Sensor",) s
+/F-gs-font 7 7 SF
+411.4 93 M (115:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 93 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 93 M
+(//                   vSensorThickness/2,WorldSizeYZ/2,WorldSizeYZ/2\);) s
+/F-gs-font 7 7 SF
+411.4 85 M (116:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 77 M (117:) s
+432.4 77 M
+(  G4VSolid* blank = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+516.4 77 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+529 77 M
+( G4Box\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+558.4 77 M
+("Blank") s
+/F-gs-font 7 7 SF
+0 setgray
+587.8 77 M
+(,) s
+411.4 69 M (118:) s
+432.4 69 M
+(                            WorldSizeX/2-vSensorThickness/2,) s
+411.4 61 M (119:) s
+432.4 61 M
+(                            WorldSizeYZ/2-vSensorThickness/2,) s
+411.4 53 M (120:) s
+432.4 53 M
+(                            WorldSizeYZ/2-vSensorThickness/2\);  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+701.2 53 M
+(//its size) s
+/F-gs-font 7 7 SF
+411.4 45 M (121:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 45 M
+(                         ) s
+411.4 37 M (122:) s
+432.4 37 M
+(  solidSensor = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+499.6 37 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+512.2 37 M
+( G4SubtractionSolid\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+596.2 37 M
+("Sensor") s
+/F-gs-font 7 7 SF
+0 setgray
+629.8 37 M
+(, solidWorld, blank\);) s
+411.4 29 M (123:) s
+411.4 21 M (124:) s
+432.4 21 M
+(  logicSensor = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+499.6 21 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+512.2 21 M
+( G4LogicalVolume\(solidSensor,) s
+411.4 13 M (125:) s
+432.4 13 M
+(                                    defaultMaterial,) s
+411.4 5 M (126:) s
+432.4 5 M
+(                                    ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+583.6 5 M
+("Sensor") s
+/F-gs-font 7 7 SF
+0 setgray
+617.2 5 M
+(\);) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+90 rotate
+24 -571 translate
+/pagenum 2 def
+/fname (PP1DetectorConstruction.cc) def
+/fdir (.) def
+/ftail (PP1DetectorConstruction.cc) def
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (12/19/16) def
+/modtimestr (16:09:01) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+column_lines
+do_header
+14.4 501 M (127:) s
+35.4 501 M
+(                                     ) s
+14.4 493 M (128:) s
+35.4 493 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 493 M
+(//physSensor = new G4PVPlacement\(0,                      //no rotation) s
+/F-gs-font 7 7 SF
+14.4 485 M (129:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 485 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 485 M
+(//                           G4ThreeVector\(WorldSizeX/2-vSensorThickness,0.,0.\), ) s
+/F-gs-font 7 7 SF
+14.4 477 M (130:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 477 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 477 M
+(//                           logicSensor,         ) s
+/F-gs-font 7 7 SF
+14.4 469 M (131:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 469 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 469 M
+(//                           "Sensor",) s
+/F-gs-font 7 7 SF
+14.4 461 M (132:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 461 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 461 M
+(//                           logicWorld,) s
+/F-gs-font 7 7 SF
+14.4 453 M (133:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 453 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 453 M
+(//                           false,                 ) s
+/F-gs-font 7 7 SF
+14.4 445 M (134:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 445 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 445 M
+(//                           0\);                    ) s
+/F-gs-font 7 7 SF
+14.4 437 M (135:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+14.4 429 M (136:) s
+35.4 429 M
+(  physSensor = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+98.4 429 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+111 429 M
+( G4PVPlacement\(0,                      ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+274.8 429 M
+(//no rotation) s
+/F-gs-font 7 7 SF
+14.4 421 M (137:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 421 M
+(                               G4ThreeVector\(0.,0.,0.\), ) s
+14.4 413 M (138:) s
+35.4 413 M
+(                               logicSensor,         ) s
+14.4 405 M (139:) s
+35.4 405 M
+(                               ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+165.6 405 M
+("Sensor") s
+/F-gs-font 7 7 SF
+0 setgray
+199.2 405 M
+(,) s
+14.4 397 M (140:) s
+35.4 397 M
+(                               logicWorld,) s
+14.4 389 M (141:) s
+35.4 389 M
+(                               false,                 ) s
+14.4 381 M (142:) s
+35.4 381 M
+(                               0\);                    ) s
+14.4 373 M (143:) s
+14.4 365 M (144:) s
+35.4 365 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 365 M
+(//                                 ) s
+/F-gs-font 7 7 SF
+14.4 357 M (145:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 357 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 357 M
+(// Gun) s
+/F-gs-font 7 7 SF
+14.4 349 M (146:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 349 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 349 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 341 M (147:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 341 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 341 M
+(//  G4double   vGunSize = 1.0 *cm;) s
+/F-gs-font 7 7 SF
+14.4 333 M (148:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 333 M
+(  G4double   vGunSize = 0.1 *cm;) s
+14.4 325 M (149:) s
+35.4 325 M
+(  solidGun = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+90 325 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+102.6 325 M
+( G4Box\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+132 325 M
+("Gun") s
+/F-gs-font 7 7 SF
+0 setgray
+153 325 M
+(,) s
+14.4 317 M (150:) s
+35.4 317 M
+(                       vGunSize/2,vGunSize/2,vGunSize/2\);) s
+14.4 309 M (151:) s
+35.4 309 M
+(                           ) s
+14.4 301 M (152:) s
+35.4 301 M
+(  logicGun = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+90 301 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+102.6 301 M
+( G4LogicalVolume\(solidGun,) s
+14.4 293 M (153:) s
+35.4 293 M
+(                                 defaultMaterial,) s
+14.4 285 M (154:) s
+35.4 285 M
+(                                 ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 285 M
+("Gun") s
+/F-gs-font 7 7 SF
+0 setgray
+195 285 M
+(\);) s
+14.4 277 M (155:) s
+35.4 277 M
+(                                     ) s
+14.4 269 M (156:) s
+35.4 269 M
+(  physGun = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+85.8 269 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+98.4 269 M
+( G4PVPlacement\(0,                      ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+262.2 269 M
+(//no rotation) s
+/F-gs-font 7 7 SF
+14.4 261 M (157:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 261 M
+(                               G4ThreeVector\(\(-0.4\)*WorldSizeX+vGunSize,0.,0.\), ) s
+14.4 253 M (158:) s
+35.4 253 M
+(                               logicGun,         ) s
+14.4 245 M (159:) s
+35.4 245 M
+(                               ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+165.6 245 M
+("Gun") s
+/F-gs-font 7 7 SF
+0 setgray
+186.6 245 M
+(,) s
+14.4 237 M (160:) s
+35.4 237 M
+(                               logicWorld,) s
+14.4 229 M (161:) s
+35.4 229 M
+(                               false,                 ) s
+14.4 221 M (162:) s
+35.4 221 M
+(                               0\);                    ) s
+14.4 213 M (163:) s
+35.4 213 M
+(  ) s
+14.4 205 M (164:) s
+35.4 205 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 205 M
+(//------------------------------------------------ ) s
+/F-gs-font 7 7 SF
+14.4 197 M (165:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 197 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 197 M
+(// Sensitive detectors) s
+/F-gs-font 7 7 SF
+14.4 189 M (166:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 189 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 189 M
+(//------------------------------------------------ ) s
+/F-gs-font 7 7 SF
+14.4 181 M (167:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 181 M
+(  ) s
+14.4 173 M (168:) s
+35.4 173 M
+(  G4SDManager* SDman = G4SDManager::GetSDMpointer\(\);) s
+14.4 165 M (169:) s
+35.4 165 M
+(  PP1SensorSD* aSensorSD = \(PP1SensorSD*\)SDman->FindSensitiveDetector\( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+333.6 165 M
+("PP1/SensorSD) s
+5 157 M
+(") s
+/F-gs-font 7 7 SF
+0 setgray
+9.2 157 M
+(\);) s
+14.4 149 M (170:) s
+35.4 149 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+43.8 149 M
+(if) s
+/F-gs-font 7 7 SF
+0 setgray
+52.2 149 M
+( \( aSensorSD == 0\){) s
+14.4 141 M (171:) s
+35.4 141 M
+(    aSensorSD = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+102.6 141 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+115.2 141 M
+( PP1SensorSD\(  ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+178.2 141 M
+("PP1/SensorSD") s
+/F-gs-font 7 7 SF
+0 setgray
+237 141 M
+( \);) s
+14.4 133 M (172:) s
+35.4 133 M
+(    SDman->AddNewDetector\( aSensorSD \);) s
+14.4 125 M (173:) s
+35.4 125 M
+(  }) s
+14.4 117 M (174:) s
+35.4 117 M
+(  logicSensor->SetSensitiveDetector\( aSensorSD \);) s
+14.4 109 M (175:) s
+35.4 109 M
+(   ) s
+14.4 101 M (176:) s
+14.4 93 M (177:) s
+35.4 93 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 93 M
+(//                                        ) s
+/F-gs-font 7 7 SF
+14.4 85 M (178:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 85 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 85 M
+(// Visualization attributes) s
+/F-gs-font 7 7 SF
+14.4 77 M (179:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 77 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 77 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 69 M (180:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 69 M
+(  logicWorld->SetVisAttributes \(G4VisAttributes::Invisible\);) s
+14.4 61 M (181:) s
+35.4 61 M
+(  logicSensor->SetVisAttributes \(G4VisAttributes::Invisible\);) s
+14.4 53 M (182:) s
+35.4 53 M
+(  logicGun->SetVisAttributes \(G4VisAttributes::Invisible\);) s
+14.4 45 M (183:) s
+14.4 37 M (184:) s
+35.4 37 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 37 M
+(//logicWorld->SetVisAttributes \(G4VisAttributes\(true,G4Colour\(0.0,0.0,1.0\)\)\); // b) s
+5 29 M
+(lue) s
+/F-gs-font 7 7 SF
+14.4 21 M (185:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 21 M
+(  logicSensor->SetVisAttributes \(G4VisAttributes\(true,G4Colour\(1.0,0.0,0.0\)\)\); ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+367.2 21 M
+(//red) s
+/F-gs-font 7 7 SF
+14.4 13 M (186:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 13 M
+(  logicGun->SetVisAttributes \(G4VisAttributes\(true,G4Colour\(0.0,1.0,0.0\)\)\); ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+354.6 13 M
+(//green) s
+/F-gs-font 7 7 SF
+14.4 5 M (187:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 501 M (188:) s
+432.4 501 M
+(  G4VisAttributes* simpleBoxVisAtt= ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+583.6 501 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+596.2 501 M
+( G4VisAttributes\(G4Colour\(1.0,1.0,1.0\)\);) s
+411.4 493 M (189:) s
+432.4 493 M
+(  simpleBoxVisAtt->SetVisibility\(true\);) s
+411.4 485 M (190:) s
+432.4 485 M
+(  logicTarget->SetVisAttributes\(simpleBoxVisAtt\);) s
+411.4 477 M (191:) s
+411.4 469 M (192:) s
+432.4 469 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 469 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 461 M (193:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 461 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 461 M
+(//always return the physical World) s
+/F-gs-font 7 7 SF
+411.4 453 M (194:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 453 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 453 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 445 M (195:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 445 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 445 M
+(return) s
+/F-gs-font 7 7 SF
+0 setgray
+466 445 M
+( physWorld;) s
+411.4 437 M (196:) s
+432.4 437 M
+(}) s
+411.4 429 M (197:) s
+411.4 421 M (198:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+432.4 421 M
+(///////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+411.4 413 M (199:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 405 M (200:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+432.4 405 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 405 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+453.4 405 M
+(PP1DetectorConstruction::DefineMaterials) s
+/F-gs-font 7 7 SF
+0 setgray
+621.4 405 M
+(\(\)) s
+411.4 397 M (201:) s
+432.4 397 M
+({ ) s
+411.4 389 M (202:) s
+432.4 389 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 389 M
+(//This function illustrates the possible ways to define materials) s
+/F-gs-font 7 7 SF
+411.4 381 M (203:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 381 M
+(  ) s
+411.4 373 M (204:) s
+432.4 373 M
+(  G4String symbol;             ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+562.6 373 M
+(//a=mass of a mole;) s
+/F-gs-font 7 7 SF
+411.4 365 M (205:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 365 M
+(  G4double a, z, density;      ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+562.6 365 M
+(//z=mean number of protons;  ) s
+/F-gs-font 7 7 SF
+411.4 357 M (206:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 357 M
+(  G4int iz, n;                 ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+562.6 357 M
+(//iz=number of protons  in an isotope; ) s
+/F-gs-font 7 7 SF
+411.4 349 M (207:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 349 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 349 M
+(// n=number of nucleons in an isotope;) s
+/F-gs-font 7 7 SF
+411.4 341 M (208:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 341 M
+(  ) s
+411.4 333 M (209:) s
+432.4 333 M
+(  G4int ncomponents, natoms;) s
+411.4 325 M (210:) s
+432.4 325 M
+(  G4double abundance, fractionmass;) s
+411.4 317 M (211:) s
+432.4 317 M
+(  ) s
+411.4 309 M (212:) s
+432.4 309 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 309 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 301 M (213:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 301 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 301 M
+(// define Elements) s
+/F-gs-font 7 7 SF
+411.4 293 M (214:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 293 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 293 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 285 M (215:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 285 M
+(  ) s
+411.4 277 M (216:) s
+432.4 277 M
+(  G4Element* H  = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 277 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 277 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 277 M
+("Hydrogen") s
+/F-gs-font 7 7 SF
+0 setgray
+608.8 277 M
+(,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+642.4 277 M
+("H") s
+/F-gs-font 7 7 SF
+0 setgray
+655 277 M
+( , z= 1., a= 1.01*g/mole\);) s
+411.4 269 M (217:) s
+432.4 269 M
+(  G4Element* C  = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 269 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 269 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 269 M
+("Carbon") s
+/F-gs-font 7 7 SF
+0 setgray
+600.4 269 M
+(  ,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+642.4 269 M
+("C") s
+/F-gs-font 7 7 SF
+0 setgray
+655 269 M
+( , z= 6., a= 12.01*g/mole\);) s
+411.4 261 M (218:) s
+432.4 261 M
+(  G4Element* N  = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 261 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 261 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 261 M
+("Nitrogen") s
+/F-gs-font 7 7 SF
+0 setgray
+608.8 261 M
+(,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+642.4 261 M
+("N") s
+/F-gs-font 7 7 SF
+0 setgray
+655 261 M
+( , z= 7., a= 14.01*g/mole\);) s
+411.4 253 M (219:) s
+432.4 253 M
+(  G4Element* O  = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 253 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 253 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 253 M
+("Oxygen") s
+/F-gs-font 7 7 SF
+0 setgray
+600.4 253 M
+(  ,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+642.4 253 M
+("O") s
+/F-gs-font 7 7 SF
+0 setgray
+655 253 M
+( , z= 8., a= 16.00*g/mole\);) s
+411.4 245 M (220:) s
+432.4 245 M
+(  G4Element* Si = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 245 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 245 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 245 M
+("Silicon") s
+/F-gs-font 7 7 SF
+0 setgray
+604.6 245 M
+(,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+638.2 245 M
+("Si") s
+/F-gs-font 7 7 SF
+0 setgray
+655 245 M
+( , z= 14., a= 28.09*g/mole\);) s
+411.4 237 M (221:) s
+432.4 237 M
+(  ) s
+411.4 229 M (222:) s
+432.4 229 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 229 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 221 M (223:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 221 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 221 M
+(// define an Element from isotopes, by relative abundance ) s
+/F-gs-font 7 7 SF
+411.4 213 M (224:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 213 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 213 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 205 M (225:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 205 M
+(  ) s
+411.4 197 M (226:) s
+432.4 197 M
+(  G4Isotope* U5 = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 197 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 197 M
+( G4Isotope\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 197 M
+("U235") s
+/F-gs-font 7 7 SF
+0 setgray
+592 197 M
+(, iz=92, n=235, a=235.01*g/mole\);) s
+411.4 189 M (227:) s
+432.4 189 M
+(  G4Isotope* U8 = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 189 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 189 M
+( G4Isotope\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 189 M
+("U238") s
+/F-gs-font 7 7 SF
+0 setgray
+592 189 M
+(, iz=92, n=238, a=238.03*g/mole\);) s
+411.4 181 M (228:) s
+432.4 181 M
+(  ) s
+411.4 173 M (229:) s
+432.4 173 M
+(  G4Element* U  = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+508 173 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 173 M
+( G4Element\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 173 M
+("enriched Uranium") s
+/F-gs-font 7 7 SF
+0 setgray
+642.4 173 M
+(,symbol=) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+676 173 M
+("U") s
+/F-gs-font 7 7 SF
+0 setgray
+688.6 173 M
+(,ncomponents=2\);) s
+411.4 165 M (230:) s
+432.4 165 M
+(  U->AddIsotope\(U5, abundance= 90.*perCent\);) s
+411.4 157 M (231:) s
+432.4 157 M
+(  U->AddIsotope\(U8, abundance= 10.*perCent\);) s
+411.4 149 M (232:) s
+432.4 149 M
+(  ) s
+411.4 141 M (233:) s
+432.4 141 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 141 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 133 M (234:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 133 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 133 M
+(// define simple materials) s
+/F-gs-font 7 7 SF
+411.4 125 M (235:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 125 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 125 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 117 M (236:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 117 M
+(  ) s
+411.4 109 M (237:) s
+432.4 109 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 109 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+453.4 109 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+503.8 109 M
+("Aluminium") s
+/F-gs-font 7 7 SF
+0 setgray
+550 109 M
+(, z=13., a=26.98*g/mole, density=2.700*g/cm3\);) s
+411.4 101 M (238:) s
+432.4 101 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 101 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+453.4 101 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+503.8 101 M
+("liquidArgon") s
+/F-gs-font 7 7 SF
+0 setgray
+558.4 101 M
+(, z=18., a= 39.95*g/mole, density= 1.390*g/cm3\);) s
+411.4 93 M (239:) s
+432.4 93 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 93 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+453.4 93 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+503.8 93 M
+("Lead") s
+/F-gs-font 7 7 SF
+0 setgray
+529 93 M
+(     , z=82., a= 207.19*g/mole, density= 11.35*g/cm3\);) s
+411.4 85 M (240:) s
+432.4 85 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 85 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+453.4 85 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+503.8 85 M
+("Tungsten") s
+/F-gs-font 7 7 SF
+0 setgray
+545.8 85 M
+( , z=74., a= 183.84*g/mole, density= 19.25*g/cm3\);) s
+411.4 77 M (241:) s
+432.4 77 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 77 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+453.4 77 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+503.8 77 M
+("Iron") s
+/F-gs-font 7 7 SF
+0 setgray
+529 77 M
+( , z=26., a= 55.845*g/mole, density= 7.874*g/cm3\);) s
+411.4 69 M (242:) s
+432.4 69 M
+(  ) s
+411.4 61 M (243:) s
+432.4 61 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 61 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 53 M (244:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 53 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 53 M
+(// define a material from elements.   case 1: chemical molecule) s
+/F-gs-font 7 7 SF
+411.4 45 M (245:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 45 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 45 M
+(//) s
+/F-gs-font 7 7 SF
+411.4 37 M (246:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 37 M
+(  ) s
+411.4 29 M (247:) s
+432.4 29 M
+(  G4Material* H2O = ) s
+411.4 21 M (248:) s
+432.4 21 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+449.2 21 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+461.8 21 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+512.2 21 M
+("Water") s
+/F-gs-font 7 7 SF
+0 setgray
+541.6 21 M
+(, density= 1.000*g/cm3, ncomponents=2\);) s
+411.4 13 M (249:) s
+432.4 13 M
+(  H2O->AddElement\(H, natoms=2\);) s
+411.4 5 M (250:) s
+432.4 5 M
+(  H2O->AddElement\(O, natoms=1\);) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+90 rotate
+24 -571 translate
+/pagenum 3 def
+/fname (PP1DetectorConstruction.cc) def
+/fdir (.) def
+/ftail (PP1DetectorConstruction.cc) def
+% User defined strings:
+/pagenumstr (3) def
+/moddatestr (12/19/16) def
+/modtimestr (16:09:01) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+column_lines
+do_header
+14.4 501 M (251:) s
+35.4 501 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 501 M
+(// overwrite computed meanExcitationEnergy with ICRU recommended value ) s
+/F-gs-font 7 7 SF
+14.4 493 M (252:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 493 M
+(  H2O->GetIonisation\(\)->SetMeanExcitationEnergy\(75.0*eV\);) s
+14.4 485 M (253:) s
+35.4 485 M
+(  ) s
+14.4 477 M (254:) s
+35.4 477 M
+(  G4Material* Sci = ) s
+14.4 469 M (255:) s
+35.4 469 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 469 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 469 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 469 M
+("Scintillator") s
+/F-gs-font 7 7 SF
+0 setgray
+174 469 M
+(, density= 1.032*g/cm3, ncomponents=2\);) s
+14.4 461 M (256:) s
+35.4 461 M
+(  Sci->AddElement\(C, natoms=9\);) s
+14.4 453 M (257:) s
+35.4 453 M
+(  Sci->AddElement\(H, natoms=10\);) s
+14.4 445 M (258:) s
+35.4 445 M
+(  ) s
+14.4 437 M (259:) s
+35.4 437 M
+(  G4Material* Myl = ) s
+14.4 429 M (260:) s
+35.4 429 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 429 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 429 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 429 M
+("Mylar") s
+/F-gs-font 7 7 SF
+0 setgray
+144.6 429 M
+(, density= 1.397*g/cm3, ncomponents=3\);) s
+14.4 421 M (261:) s
+35.4 421 M
+(  Myl->AddElement\(C, natoms=10\);) s
+14.4 413 M (262:) s
+35.4 413 M
+(  Myl->AddElement\(H, natoms= 8\);) s
+14.4 405 M (263:) s
+35.4 405 M
+(  Myl->AddElement\(O, natoms= 4\);) s
+14.4 397 M (264:) s
+35.4 397 M
+(  ) s
+14.4 389 M (265:) s
+35.4 389 M
+(  G4Material* SiO2 = ) s
+14.4 381 M (266:) s
+35.4 381 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 381 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 381 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 381 M
+("quartz") s
+/F-gs-font 7 7 SF
+0 setgray
+148.8 381 M
+(,density= 2.200*g/cm3, ncomponents=2\);) s
+14.4 373 M (267:) s
+35.4 373 M
+(  SiO2->AddElement\(Si, natoms=1\);) s
+14.4 365 M (268:) s
+35.4 365 M
+(  SiO2->AddElement\(O , natoms=2\);) s
+14.4 357 M (269:) s
+35.4 357 M
+(  ) s
+14.4 349 M (270:) s
+35.4 349 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 349 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 341 M (271:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 341 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 341 M
+(// define a material from elements.   case 2: mixture by fractional mass) s
+/F-gs-font 7 7 SF
+14.4 333 M (272:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 333 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 333 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 325 M (273:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 325 M
+(  ) s
+14.4 317 M (274:) s
+35.4 317 M
+(  G4Material* Air = ) s
+14.4 309 M (275:) s
+35.4 309 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 309 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 309 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 309 M
+("Air") s
+/F-gs-font 7 7 SF
+0 setgray
+136.2 309 M
+(  , density= 1.290*mg/cm3, ncomponents=2\);) s
+14.4 301 M (276:) s
+35.4 301 M
+(  Air->AddElement\(N, fractionmass=0.7\);) s
+14.4 293 M (277:) s
+35.4 293 M
+(  Air->AddElement\(O, fractionmass=0.3\);) s
+14.4 285 M (278:) s
+35.4 285 M
+(  ) s
+14.4 277 M (279:) s
+35.4 277 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 277 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 269 M (280:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 269 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 269 M
+(// define a material from elements and/or others materials \(mixture of mixtures\)) s
+/F-gs-font 7 7 SF
+14.4 261 M (281:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 261 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 261 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 253 M (282:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 253 M
+(  ) s
+14.4 245 M (283:) s
+35.4 245 M
+(  G4Material* Aerog = ) s
+14.4 237 M (284:) s
+35.4 237 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 237 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 237 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 237 M
+("Aerogel") s
+/F-gs-font 7 7 SF
+0 setgray
+153 237 M
+(, density= 0.200*g/cm3, ncomponents=3\);) s
+14.4 229 M (285:) s
+35.4 229 M
+(  Aerog->AddMaterial\(SiO2, fractionmass=62.5*perCent\);) s
+14.4 221 M (286:) s
+35.4 221 M
+(  Aerog->AddMaterial\(H2O , fractionmass=37.4*perCent\);) s
+14.4 213 M (287:) s
+35.4 213 M
+(  Aerog->AddElement \(C   , fractionmass= 0.1*perCent\);) s
+14.4 205 M (288:) s
+35.4 205 M
+(  ) s
+14.4 197 M (289:) s
+35.4 197 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 197 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 189 M (290:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 189 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 189 M
+(// examples of gas in non STP conditions) s
+/F-gs-font 7 7 SF
+14.4 181 M (291:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 181 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 181 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 173 M (292:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+14.4 165 M (293:) s
+35.4 165 M
+(  G4Material* CO2 = ) s
+14.4 157 M (294:) s
+35.4 157 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 157 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 157 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 157 M
+("CarbonicGas") s
+/F-gs-font 7 7 SF
+0 setgray
+169.8 157 M
+(, density= 27.*mg/cm3, ncomponents=2,) s
+14.4 149 M (295:) s
+35.4 149 M
+(                              kStateGas, 325.*kelvin, 50.*atmosphere\);) s
+14.4 141 M (296:) s
+35.4 141 M
+(  CO2->AddElement\(C, natoms=1\);) s
+14.4 133 M (297:) s
+35.4 133 M
+(  CO2->AddElement\(O, natoms=2\);) s
+14.4 125 M (298:) s
+35.4 125 M
+(  ) s
+14.4 117 M (299:) s
+35.4 117 M
+(  G4Material* steam = ) s
+14.4 109 M (300:) s
+35.4 109 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 109 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 109 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 109 M
+("WaterSteam") s
+/F-gs-font 7 7 SF
+0 setgray
+165.6 109 M
+(, density= 0.3*mg/cm3, ncomponents=1,) s
+14.4 101 M (301:) s
+35.4 101 M
+(                   kStateGas, 500.*kelvin, 2.*atmosphere\);) s
+14.4 93 M (302:) s
+35.4 93 M
+(  steam->AddMaterial\(H2O, fractionmass=1.\);) s
+14.4 85 M (303:) s
+35.4 85 M
+(  ) s
+14.4 77 M (304:) s
+35.4 77 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 77 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 69 M (305:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 69 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 69 M
+(// examples of vacuum) s
+/F-gs-font 7 7 SF
+14.4 61 M (306:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 61 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+43.8 61 M
+(//) s
+/F-gs-font 7 7 SF
+14.4 53 M (307:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+35.4 53 M
+(  ) s
+14.4 45 M (308:) s
+35.4 45 M
+(  G4Material* Vacuum =) s
+14.4 37 M (309:) s
+35.4 37 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 37 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 37 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 37 M
+("Galactic") s
+/F-gs-font 7 7 SF
+0 setgray
+157.2 37 M
+(, z=1., a=1.01*g/mole,density= universe_mean_density,) s
+14.4 29 M (310:) s
+35.4 29 M
+(                   kStateGas, 2.73*kelvin, 3.e-18*pascal\);) s
+14.4 21 M (311:) s
+35.4 21 M
+(  ) s
+14.4 13 M (312:) s
+35.4 13 M
+(  G4Material* beam = ) s
+14.4 5 M (313:) s
+35.4 5 M
+(    ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 5 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+64.8 5 M
+( G4Material\() s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+115.2 5 M
+("Beam") s
+/F-gs-font 7 7 SF
+0 setgray
+140.4 5 M
+(, density= 1.e-5*g/cm3, ncomponents=1,) s
+411.4 501 M (314:) s
+432.4 501 M
+(                   kStateGas, STP_Temperature, 2.e-2*bar\);) s
+411.4 493 M (315:) s
+432.4 493 M
+(  beam->AddMaterial\(Air, fractionmass=1.\);) s
+411.4 485 M (316:) s
+411.4 477 M (317:) s
+432.4 477 M
+(  G4cout << *\(G4Material::GetMaterialTable\(\)\) << G4endl;) s
+411.4 469 M (318:) s
+432.4 469 M
+(  ) s
+411.4 461 M (319:) s
+432.4 461 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 461 M
+(//default materials of the World) s
+/F-gs-font 7 7 SF
+411.4 453 M (320:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 453 M
+(  defaultMaterial  = Vacuum;) s
+411.4 445 M (321:) s
+432.4 445 M
+(}) s
+411.4 437 M (322:) s
+411.4 429 M (323:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+432.4 429 M
+(/////////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+411.4 421 M (324:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 413 M (325:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+432.4 413 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 413 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+453.4 413 M
+(PP1DetectorConstruction::SetTargetMaterial) s
+/F-gs-font 7 7 SF
+0 setgray
+629.8 413 M
+(\(G4String materialChoice\)) s
+411.4 405 M (326:) s
+432.4 405 M
+({) s
+411.4 397 M (327:) s
+432.4 397 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 397 M
+(// search the material by its name) s
+/F-gs-font 7 7 SF
+411.4 389 M (328:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 389 M
+(  G4Material* pttoMaterial = G4Material::GetMaterial\(materialChoice\);) s
+411.4 381 M (329:) s
+432.4 381 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 381 M
+(if) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 381 M
+( \(pttoMaterial\) {) s
+411.4 373 M (330:) s
+432.4 373 M
+(    pTargetMaterial = pttoMaterial;) s
+411.4 365 M (331:) s
+432.4 365 M
+(    G4cout << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+491.2 365 M
+(" PP1DetectorConstruction::SetTargetMaterial:  ") s
+/F-gs-font 7 7 SF
+0 setgray
+692.8 365 M
+(;) s
+411.4 357 M (332:) s
+432.4 357 M
+(    G4cout << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+491.2 357 M
+("Target material is ") s
+/F-gs-font 7 7 SF
+0 setgray
+579.4 357 M
+( << materialChoice << G4endl;) s
+411.4 349 M (333:) s
+432.4 349 M
+(    UpdateGeometry\(\);) s
+411.4 341 M (334:) s
+432.4 341 M
+( } ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+445 341 M
+(else) s
+/F-gs-font 7 7 SF
+0 setgray
+461.8 341 M
+( {) s
+411.4 333 M (335:) s
+432.4 333 M
+(    G4cout << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+491.2 333 M
+(" PP1DetectorConstruction::SetTargetMaterial:  ") s
+/F-gs-font 7 7 SF
+0 setgray
+692.8 333 M
+(;) s
+411.4 325 M (336:) s
+432.4 325 M
+(    G4cout << materialChoice << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+566.8 325 M
+(" is not in the Material Table.") s
+/F-gs-font 7 7 SF
+0 setgray
+701.2 325 M
+(;) s
+411.4 317 M (337:) s
+432.4 317 M
+(    G4cout <<G4endl;) s
+411.4 309 M (338:) s
+432.4 309 M
+(  }) s
+411.4 301 M (339:) s
+432.4 301 M
+(}) s
+411.4 293 M (340:) s
+411.4 285 M (341:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+432.4 285 M
+(//////////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+411.4 277 M (342:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 269 M (343:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+432.4 269 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 269 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+453.4 269 M
+(PP1DetectorConstruction::SetTargetThickness) s
+/F-gs-font 7 7 SF
+0 setgray
+634 269 M
+(\(G4double val\)) s
+411.4 261 M (344:) s
+432.4 261 M
+({) s
+411.4 253 M (345:) s
+432.4 253 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 253 M
+(if) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 253 M
+( \(val<WorldSizeYZ\) {) s
+411.4 245 M (346:) s
+432.4 245 M
+(    vTargetThickness = val;) s
+411.4 237 M (347:) s
+432.4 237 M
+(    G4cout << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+491.2 237 M
+(" PP1DetectorConstruction::SetTargetThickness:  ") s
+/F-gs-font 7 7 SF
+0 setgray
+697 237 M
+(;) s
+411.4 229 M (348:) s
+432.4 229 M
+(    G4cout << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+491.2 229 M
+("Target thickness is ") s
+/F-gs-font 7 7 SF
+0 setgray
+583.6 229 M
+( << val/mm << ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+642.4 229 M
+("mm") s
+/F-gs-font 7 7 SF
+0 setgray
+659.2 229 M
+( << G4endl;) s
+411.4 221 M (349:) s
+432.4 221 M
+(    UpdateGeometry\(\);) s
+411.4 213 M (350:) s
+432.4 213 M
+( }) s
+411.4 205 M (351:) s
+432.4 205 M
+(}) s
+411.4 197 M (352:) s
+411.4 189 M (353:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+432.4 189 M
+(//////////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+411.4 181 M (354:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 173 M (355:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+432.4 173 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 173 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+453.4 173 M
+(PP1DetectorConstruction::SetTargetSize) s
+/F-gs-font 7 7 SF
+0 setgray
+613 173 M
+(\(G4double val\)) s
+411.4 165 M (356:) s
+432.4 165 M
+({) s
+411.4 157 M (357:) s
+432.4 157 M
+(    vTargetSize = val;) s
+411.4 149 M (358:) s
+432.4 149 M
+(    UpdateGeometry\(\);) s
+411.4 141 M (359:) s
+432.4 141 M
+(}) s
+411.4 133 M (360:) s
+411.4 125 M (361:) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+432.4 125 M
+(///////////////////////////////////////////////////////////////////) s
+/F-gs-font 7 7 SF
+411.4 117 M (362:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 109 M (363:) s
+432.4 109 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+436.6 109 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+466 109 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+470.2 109 M
+("G4FieldManager.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+411.4 101 M (364:) s
+432.4 101 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+436.6 101 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+466 101 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+470.2 101 M
+("G4TransportationManager.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+411.4 93 M (365:) s
+411.4 85 M (366:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+432.4 85 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 85 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+453.4 85 M
+(PP1DetectorConstruction::SetMagField) s
+/F-gs-font 7 7 SF
+0 setgray
+604.6 85 M
+(\(G4double value\)) s
+411.4 77 M (367:) s
+432.4 77 M
+({) s
+411.4 69 M (368:) s
+432.4 69 M
+(  ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+440.8 69 M
+(//apply a global uniform magnetic field along Z axis) s
+/F-gs-font 7 7 SF
+411.4 61 M (369:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 61 M
+(  G4FieldManager* fieldMgr) s
+411.4 53 M (370:) s
+432.4 53 M
+(   = G4TransportationManager::GetTransportationManager\(\)->GetFieldManager\(\);) s
+411.4 45 M (371:) s
+411.4 37 M (372:) s
+432.4 37 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 37 M
+(if) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 37 M
+(\(magField\) ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+495.4 37 M
+(delete) s
+/F-gs-font 7 7 SF
+0 setgray
+520.6 37 M
+( magField;         ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+600.4 37 M
+(//delete the existing magn field) s
+/F-gs-font 7 7 SF
+411.4 29 M (373:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+411.4 21 M (374:) s
+432.4 21 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+440.8 21 M
+(if) s
+/F-gs-font 7 7 SF
+0 setgray
+449.2 21 M
+(\(value!=0.\){                        ) s
+/Courier-Oblique 7 7 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+600.4 21 M
+(// create a new one if non nul) s
+/F-gs-font 7 7 SF
+411.4 13 M (375:) s
+/Courier-Oblique 7 7 SUF
+/F-gs-font 7 7 SF
+0 setgray
+432.4 13 M
+(    fieldValue = value;) s
+411.4 5 M (376:) s
+432.4 5 M
+(    magField = ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+495.4 5 M
+(new) s
+/F-gs-font 7 7 SF
+0 setgray
+508 5 M
+( G4UniformMagField\(G4ThreeVector\(0.,0.,fieldValue\)\);) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+90 rotate
+24 -571 translate
+/pagenum 4 def
+/fname (PP1DetectorConstruction.cc) def
+/fdir (.) def
+/ftail (PP1DetectorConstruction.cc) def
+% User defined strings:
+/pagenumstr (4) def
+/moddatestr (12/19/16) def
+/modtimestr (16:09:01) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+column_lines
+do_header
+14.4 501 M (377:) s
+35.4 501 M
+(    fieldMgr->SetDetectorField\(magField\);) s
+14.4 493 M (378:) s
+35.4 493 M
+(    fieldMgr->CreateChordFinder\(magField\);) s
+14.4 485 M (379:) s
+35.4 485 M
+(  } ) s
+/Courier-Bold 7 7 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+52.2 485 M
+(else) s
+/F-gs-font 7 7 SF
+0 setgray
+69 485 M
+( {) s
+14.4 477 M (380:) s
+35.4 477 M
+(    magField = 0;) s
+14.4 469 M (381:) s
+35.4 469 M
+(    fieldMgr->SetDetectorField\(magField\);) s
+14.4 461 M (382:) s
+35.4 461 M
+(  }) s
+14.4 453 M (383:) s
+35.4 453 M
+(}) s
+14.4 445 M (384:) s
+14.4 437 M (385:) s
+35.4 437 M
+(#) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+39.6 437 M
+(include) s
+/F-gs-font 7 7 SF
+0 setgray
+69 437 M
+( ) s
+/Courier-Bold 7 7 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+73.2 437 M
+("G4RunManager.hh") s
+/F-gs-font 7 7 SF
+0 setgray
+14.4 429 M (386:) s
+14.4 421 M (387:) s
+/Courier-Bold 7 7 SUF
+0.133333 0.545098 0.133333 setrgbcolor
+35.4 421 M
+(void) s
+/F-gs-font 7 7 SF
+0 setgray
+52.2 421 M
+( ) s
+/Courier-Bold 7 7 SUF
+0 0 1 setrgbcolor
+56.4 421 M
+(PP1DetectorConstruction::UpdateGeometry) s
+/F-gs-font 7 7 SF
+0 setgray
+220.2 421 M
+(\(\)) s
+14.4 413 M (388:) s
+35.4 413 M
+({) s
+14.4 405 M (389:) s
+35.4 405 M
+(  ) s
+/Courier-Bold 7 7 SUF
+0.372549 0.619608 0.627451 setrgbcolor
+43.8 405 M
+(G4RunManager) s
+/F-gs-font 7 7 SF
+0 setgray
+94.2 405 M
+(::GetRunManager\(\)->DefineWorldVolume\(Construct\(\)\);) s
+14.4 397 M (390:) s
+35.4 397 M
+(}) s
+14.4 389 M (391:) s
+_R
+S
+%%Trailer
+%%Pages: 4
+%%DocumentNeededResources: font Times-Roman Courier-Oblique Courier-Bold 
+%%+ font Courier Times-Bold 
+%%EOF
