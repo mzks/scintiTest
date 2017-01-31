@@ -27,33 +27,3 @@
 /vis/viewer/set/autoRefresh true
 /vis/viewer/refresh
 /vis/verbose warnings
-/control/execute pp1.mac
-/gun/particle ion
-/gun/ion 11 22
-/gun/energy 0.0 MeV
-/gun/position 0 0 0 mm
-/PP1/det/setMaterial Scintillator
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/create/drawByParticleID Color
-/vis/modeling/trajectories/Color/set e+ blue
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/Color/set e- red
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/Color/set gamma green
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/Color/default/setStepPtsSize 5
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/Color/default/setAuxPtsSize 5
-/vis/scene/notifyHandlers scene-0
-/control/alias interval 0,01
-/control/alias halfInterval 0,005
-/vis/modeling/trajectories/list
-/vis/filtering/trajectories/create/particleFilter ColorFilter
-/vis/filtering/trajectories/ColorFilter/add nu_e
-/vis/scene/notifyHandlers scene-0
-/vis/filtering/trajectories/ColorFilter/add gamma
-/vis/scene/notifyHandlers scene-0
-/vis/filtering/trajectories/ColorFilter/invert true
-/vis/scene/notifyHandlers scene-0
-/run/beamOn 1000
-/vis/scene/notifyHandlers scene-0

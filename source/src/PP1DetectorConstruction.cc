@@ -288,7 +288,57 @@ G4VPhysicalVolume* PP1DetectorConstruction::Construct()
 			9004,
 			true);
   
-  
+	// Lead collimator
+	
+	G4Material* Lead = new G4Material("Lead",z=82.0, a= 207.19*g/mole, density= 11.35*g/cm3);
+	
+	G4double collimatorLength = 72.0 * mm;
+	G4double collimatorPhi = 16.0 * mm;
+
+	G4Box* 	solidCollimator = new G4Box(
+			"solidCollimator",
+			100* mm /2.0,
+			100* mm /2.0,
+			collimatorLength /2.0);
+
+	G4Tubs* solidCollimatorHole = new G4Tubs(
+			"solidCollimatorHole",
+			0,
+			collimatorPhi /2.0,
+			collimatorLength / 2.0,
+			0.0,
+			CLHEP::twopi);
+
+  auto logicCollimator = new G4LogicalVolume(solidCollimator,		//its solid
+                                   Lead,	//its material
+                                   "logicCollimator");		//its name
+
+  auto logicCollimatorHole = new G4LogicalVolume(solidCollimatorHole,		//its solid
+                                   defaultMaterial,	//its material
+                                   "logicCollimatorHole");		//its name
+
+
+	new G4PVPlacement( 
+			G4Transform3D(G4RotationMatrix(),G4ThreeVector(0,0,0)), //rotation and vector
+			logicCollimatorHole,	//logical volume
+			"logicCollimatorHole",//name
+			logicCollimator, //mother logicall volume
+			false,				//set to false
+			4000,			//copy number
+			true);			// check
+
+
+
+	new G4PVPlacement(
+			G4Transform3D(mat_source,G4ThreeVector(3.9 *cm,0,0)),
+			"logicCollimator",
+			logicCollimator,
+		   	physWorld, 
+			false,
+			4001,
+			true);
+	
+
 
   //                                 
   // Gun
@@ -396,7 +446,7 @@ void PP1DetectorConstruction::DefineMaterials()
   
   //new G4Material("Aluminium", z=13., a=26.98*g/mole, density=2.700*g/cm3);
   new G4Material("liquidArgon", z=18., a= 39.95*g/mole, density= 1.390*g/cm3);
-  new G4Material("Lead"     , z=82., a= 207.19*g/mole, density= 11.35*g/cm3);
+  //new G4Material("Lead"     , z=82., a= 207.19*g/mole, density= 11.35*g/cm3);
   new G4Material("Tungsten" , z=74., a= 183.84*g/mole, density= 19.25*g/cm3);
   new G4Material("Iron" , z=26., a= 55.845*g/mole, density= 7.874*g/cm3);
   
